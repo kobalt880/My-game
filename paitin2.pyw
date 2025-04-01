@@ -96,7 +96,7 @@ class Wall:
         if not self.destroyed:
             if (inside := rinr(self.get_x_area(), pl.get_x_area()) and rinr(self.get_y_area(), pl.get_y_area())) and evil:
                 pl.hp -= 1
-                pl.Pass = False
+                pl.to_center()
             elif inside and not end:
                 if var == 1:
                     walls.walls[4].x += 25
@@ -108,6 +108,37 @@ class Wall:
                         good_walls2.walls[gw_num].destroyed = False
                         gw_num += 1
                     except IndexError: pass
+
+                elif var == 3:
+
+                    def verify(num):
+                        self.destroyed = True
+
+                        if not good_walls3.walls[num].destroyed:
+                            for wall in good_walls3.walls:
+                                wall.destroyed = False
+                            player3.to_center()
+
+                    if not any((gw3 := [wall.destroyed for wall in good_walls3.walls])):
+                        verify(5)
+                    elif gw3.count(True) == 1:
+                        verify(3)
+                    elif gw3.count(True) == 2:
+                        verify(2)
+                    elif gw3.count(True) == 3:
+                        verify(1)
+                    elif gw3.count(True) == 4:
+                        verify(6)
+                    elif gw3.count(True) == 5:
+                        verify(0)
+                    elif gw3.count(True) == 6:
+                        verify(4)
+                    elif gw3.count(True) == 7:
+                        verify(7)
+                        player3.base_y, player3.base_x = 25, 275
+                        player3.to_center()
+                    elif gw3.count(True) == 8:
+                        player3.x, player3.y = 125, 30
 
             elif inside and end:
                 over = True
@@ -219,6 +250,17 @@ walls2 = Walls([
     Wall(0, 130, 5, 500), # left wall
     Wall(495, 0, 10, 410) # right wall
 ]); gw_num = 1
+walls3 = Walls([
+    Wall(250, 250, 250, 20),
+    Wall(250, 250, 20, 250),
+    Wall(250, 480, 250, 20),
+    Wall(480, 250, 20, 250),
+    Wall(250, 0, 20, 250), # second sector wall
+    Wall(480, 0, 20, 250),
+    Wall(250, 0, 250, 20),
+    Wall(250, 50, 200, 5), # tall wall
+    Wall(0, 0, 5, 500) # left wall
+])
 
 bad_walls = Walls([
     Wall(300, 427, 100, 23),
@@ -241,6 +283,18 @@ bad_walls2 = Walls([
     Wall(120, 100, 375, 20), # second double
     Wall(140, 142, 335, 20)
 ], (255, 0, 0))
+bad_walls3 = Walls([
+    Wall(270, 80, 50, 90), #labyrint
+    Wall(350, 80, 130, 40),
+    Wall(320, 150, 120, 20),
+    Wall(470, 80, 10, 140),
+    Wall(270, 170, 90, 50),
+    Wall(390, 200, 90,20),
+    Wall(5, 100, 60, 140), # first double
+    Wall(87, 100, 250-87, 140),
+    Wall(5, 280, 150, 140), # second double
+    Wall(155+22, 280, 250-(155+22), 140)
+], color=(255, 0, 0))
 
 good_walls = Walls([
     Wall(205, 305, 20, 20)
@@ -249,12 +303,26 @@ good_walls2 = Walls([
     Wall(75, 105, 20, 20),
     Wall(287, 121, 20, 20, destroyed=True),
 ], (0, 255, 0))
+good_walls3 = Walls([
+    Wall(290, 290, 20, 20),
+    Wall(340, 290, 20, 20),
+    Wall(390, 290, 20, 20),
+    Wall(440, 290, 20, 20), # upper
+    Wall(290, 440, 20, 20),
+    Wall(340, 440, 20, 20),
+    Wall(390, 440, 20, 20),
+    Wall(440, 440, 20, 20), # lower
+    Wall(275, 225, 20, 20), # portal wall
+
+], color=(0, 255, 0))
 
 end_wall = Walls([Wall(10, 5, 80, 140)], (255, 0, 255))
 end_wall2 = Walls([Wall(450, 450, 50, 50)], (255, 0, 255))
+end_wall3 = Walls([Wall(5, 480, 245, 50)], color=(255, 0, 255))
 
 player = Player(10, 205)
 player2 = Player(130, 400)
+player3 = Player(365, 365)
 
 try:
     level1 = Level(
@@ -273,9 +341,20 @@ try:
         bad_walls2,
         good_walls2,
         end_wall2,
-        2,
-        final=True
+        2
     )
     level2.start()
+
+    level3 = Level(
+        player3,
+        walls3,
+        bad_walls3,
+        good_walls3,
+        end_wall3,
+        3,
+        final=True
+    )
+    level3.start()
+
 except RuntimeError:
     pass
